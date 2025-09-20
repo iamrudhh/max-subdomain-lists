@@ -37,7 +37,7 @@ pip install requests
 ## 🛠 Usage
 
 ```bash
-python subdomain_url_builder.py <domain> [--check]
+python max_subdomain_lists.py <domain> [--check]
 ```
 
 * `<domain>` → The target domain (e.g., `example.com`).
@@ -48,13 +48,13 @@ python subdomain_url_builder.py <domain> [--check]
 Generate URLs for `example.com` without checking:
 
 ```bash
-python subdomain_url_builder.py example.com
+python max_subdomain_lists.py example.com
 ```
 
 Generate and probe URLs for `example.com`:
 
 ```bash
-python subdomain_url_builder.py example.com --check
+python max_subdomain_lists.py example.com --check
 ```
 
 ---
