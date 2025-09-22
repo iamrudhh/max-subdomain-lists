@@ -1,67 +1,51 @@
-Max Subdomain Lists — Bash Edition 🕵️‍♂️🔧
+Max Subdomain Lists — Bash Subdomain Enumeration Tool
 
-A small, focused Bash port of the original Python tool that generates common subdomains and builds URLs (https/http) for a target domain — with an optional probing mode that checks whether those URLs are live. Designed for bug bounty hunters, pentesters, and security enthusiasts who want a fast, simple utility without Python.
+Max Subdomain Lists is a lightweight Bash-based subdomain enumeration script that generates common subdomains for a given domain, builds corresponding URLs with both HTTP and HTTPS schemes, and optionally probes them using curl to check if they are live.
 
-📦 Features
+This tool is designed for bug bounty hunters, penetration testers, and cybersecurity professionals who need a simple and fast way to perform subdomain discovery and URL validation without relying on heavy external dependencies.
 
-Builds common subdomain hostnames (e.g. api.example.com, mail.example.com).
+Features
 
-Produces URLs for both https:// and http:// (https first).
+🔹 Generate a predefined list of common subdomains for a target domain.
 
-Optional probing of URLs using curl (HEAD, fallback to GET).
+🔹 Build full URLs with both https:// and http://.
 
-Saves all output to subdomain_results.txt.
+🔹 Optional probing mode using curl (HEAD with fallback to GET).
 
-Lightweight, single-file Bash script — easy to read and extend.
+🔹 Normalize user input by removing schemes and paths.
 
-⚙️ Requirements
+🔹 Save all results to subdomain_results.txt for later use.
 
-Bash 4+ (tested with Bash 4.x/5.x)
+🔹 Single file, lightweight Bash script — no Python or external tools required.
 
-curl — optional but required for the --check probing flag
+Requirements
 
-📥 Installation
+Bash 4+
 
-Clone your repo (or copy the script) and make it executable:
+curl (only required if using the probing feature --check)
+
+Installation
+
+Clone the repository and make the script executable:
 
 git clone https://github.com/iamrudhh/max-subdomain-lists.git
 cd max-subdomain-lists
 chmod +x subdomain_url_builder.sh
 
-🛠 Usage
-# Basic: build hostnames & URLs only
+Usage
+Basic enumeration (generate hostnames & URLs only):
 ./subdomain_url_builder.sh example.com
 
-# With probing (requires curl)
+With probing (check if URLs are live):
 ./subdomain_url_builder.sh example.com --check
-
 
 Arguments:
 
-<domain> → Target domain (e.g. example.com or https://example.com/path — the script normalizes it).
+<domain> → The target domain (e.g., example.com or https://example.com/path).
 
---check → Optional flag: probe the generated URLs to see if they respond.
+--check → Optional flag that probes each generated URL using curl.
 
-🔍 What the script does
-
-Normalize domain — strips scheme (http(s)://) and path, lowercases the host.
-
-Load subdomain list — uses the built-in SUBDOMAIN_RAW block (easy to extend).
-
-Build hostnames — joins each subdomain with the target domain.
-
-Build URLs — prepends https:// and http:// to each hostname (https first).
-
-Optional probing — curl -I (HEAD) with a short timeout (fallback to GET on 405) to detect live hosts.
-
-Save & print — prints results to console and saves everything to subdomain_results.txt.
-
-📂 Output
-
-All results are written to subdomain_results.txt in the current directory.
-
-Example console snippet:
-
+Example Output
 Target domain: example.com
 
 Hostnames:
@@ -78,26 +62,39 @@ URLs (https first):
 Probing Results:
 https://www.example.com           -> UP   : HTTP 200
 http://www.example.com            -> UP   : HTTP 200
-...
 
-⚡ Performance & Tuning
 
-The script is intentionally simple and single-threaded for readability and easy deployment.
+All results are saved automatically to subdomain_results.txt.
 
-Probing uses a small timeout (4s by default) for quick checks.
+How It Works
 
-If you need faster probing at scale, you can:
+Domain Normalization → Removes schemes (http://, https://) and paths from the input.
 
-Pipe the URL list into xargs -P to run parallel curl checks, or
+Subdomain Generation → Combines the domain with a built-in wordlist of common subdomains.
 
-Use GNU parallel to probe concurrently.
+URL Construction → Creates full URLs for each subdomain with https:// and http://.
 
-To extend the wordlist, add subdomain entries to the SUBDOMAIN_RAW block in the script.
+Optional Probing → Uses curl to send a HEAD request (fallback to GET if necessary).
 
-👤 Author
+Result Saving → Displays results in the console and writes them to subdomain_results.txt.
 
-Anirudh — GitHub: iamrudhh
+Performance
 
-⚠️ Disclaimer
+Optimized for fast subdomain discovery with a small to medium wordlist.
 
-This tool is intended for educational purposes and authorized security testing only. Do not use it on domains you do not own or do not have explicit permission to test. The author is not responsible for misuse.
+Probing mode uses a 4-second timeout for quick availability checks.
+
+Easily extendable: add more entries to the SUBDOMAIN_RAW list inside the script.
+
+For faster large-scale probing, combine the tool with xargs -P or GNU parallel.
+
+Author
+
+Anirudh
+GitHub: iamrudhh
+
+Disclaimer
+
+This script is intended for educational use and authorized security testing only.
+Do not use it on domains you do not own or lack explicit permission to test.
+The author assumes no responsibility for misuse.
