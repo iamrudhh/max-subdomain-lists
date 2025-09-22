@@ -1,75 +1,67 @@
-Here’s a clean and professional **GitHub README** for your `max-subdomain-lists` tool based on your Python script:
+Max Subdomain Lists — Bash Edition 🕵️‍♂️🔧
 
-````markdown
-# Max Subdomain Lists 🕵️‍♂️
+A small, focused Bash port of the original Python tool that generates common subdomains and builds URLs (https/http) for a target domain — with an optional probing mode that checks whether those URLs are live. Designed for bug bounty hunters, pentesters, and security enthusiasts who want a fast, simple utility without Python.
 
-**Max Subdomain Lists** is a simple Python tool to generate common subdomains and URLs for any domain. It is designed for **bug bounty hunters, penetration testers, and security enthusiasts** who want to quickly enumerate subdomains and optionally check their availability.
+📦 Features
 
----
+Builds common subdomain hostnames (e.g. api.example.com, mail.example.com).
 
-## 📦 Features
+Produces URLs for both https:// and http:// (https first).
 
-- Generates common subdomains for a target domain.
-- Builds full URLs with both `https` and `http` schemes.
-- Optionally probes URLs to check if they are live (requires `requests` library).
-- Saves results to a file `subdomain_results.txt`.
-- Simple, beginner-friendly, and fully Python-based.
+Optional probing of URLs using curl (HEAD, fallback to GET).
 
----
+Saves all output to subdomain_results.txt.
 
-## ⚙️ Installation
+Lightweight, single-file Bash script — easy to read and extend.
 
-1. Clone the repository:
+⚙️ Requirements
 
-```bash
+Bash 4+ (tested with Bash 4.x/5.x)
+
+curl — optional but required for the --check probing flag
+
+📥 Installation
+
+Clone your repo (or copy the script) and make it executable:
+
 git clone https://github.com/iamrudhh/max-subdomain-lists.git
 cd max-subdomain-lists
-````
+chmod +x subdomain_url_builder.sh
 
-2. (Optional) Install `requests` if you want to check live URLs:
+🛠 Usage
+# Basic: build hostnames & URLs only
+./subdomain_url_builder.sh example.com
 
-```bash
-pip install requests
-```
+# With probing (requires curl)
+./subdomain_url_builder.sh example.com --check
 
----
 
-## 🛠 Usage
+Arguments:
 
-```bash
-python max_subdomain_lists.py <domain> [--check]
-```
+<domain> → Target domain (e.g. example.com or https://example.com/path — the script normalizes it).
 
-* `<domain>` → The target domain (e.g., `example.com`).
-* `--check` → Optional flag to probe the URLs and see if they are live.
+--check → Optional flag: probe the generated URLs to see if they respond.
 
-### Examples
+🔍 What the script does
 
-Generate URLs for `example.com` without checking:
+Normalize domain — strips scheme (http(s)://) and path, lowercases the host.
 
-```bash
-python max_subdomain_lists.py example.com
-```
+Load subdomain list — uses the built-in SUBDOMAIN_RAW block (easy to extend).
 
-Generate and probe URLs for `example.com`:
+Build hostnames — joins each subdomain with the target domain.
 
-```bash
-python max_subdomain_lists.py example.com --check
-```
+Build URLs — prepends https:// and http:// to each hostname (https first).
 
----
+Optional probing — curl -I (HEAD) with a short timeout (fallback to GET on 405) to detect live hosts.
 
-## 📂 Output
+Save & print — prints results to console and saves everything to subdomain_results.txt.
 
-The tool will:
+📂 Output
 
-1. Print normalized domain, hostnames, and URLs in the console.
-2. If `--check` is used, it will display which URLs are **UP** or **DOWN**.
-3. Save all results to a file named `subdomain_results.txt`.
+All results are written to subdomain_results.txt in the current directory.
 
-Example output snippet:
+Example console snippet:
 
-```
 Target domain: example.com
 
 Hostnames:
@@ -87,43 +79,25 @@ Probing Results:
 https://www.example.com           -> UP   : HTTP 200
 http://www.example.com            -> UP   : HTTP 200
 ...
-```
 
----
+⚡ Performance & Tuning
 
-## 🔧 How It Works
+The script is intentionally simple and single-threaded for readability and easy deployment.
 
-1. **Domain normalization** – Strips scheme and path from the user input.
-2. **Subdomain generation** – Combines the target domain with a predefined list of common subdomains.
-3. **URL building** – Prepends `https` and `http` schemes to each hostname.
-4. **Optional probing** – Sends HTTP HEAD requests to check if the URLs are accessible.
-5. **Results** – Prints and saves all results to `subdomain_results.txt`.
+Probing uses a small timeout (4s by default) for quick checks.
 
----
+If you need faster probing at scale, you can:
 
-## ⚡ Performance
+Pipe the URL list into xargs -P to run parallel curl checks, or
 
-* Lightweight and fast for small to medium lists of subdomains.
-* The optional probing uses simple HTTP requests with a short timeout, making it efficient for quick checks.
-* Can be easily extended by adding more subdomains to the `SUBDOMAIN_RAW` list.
+Use GNU parallel to probe concurrently.
 
----
+To extend the wordlist, add subdomain entries to the SUBDOMAIN_RAW block in the script.
 
-## 👤 Author
+👤 Author
 
-**Anirudh (GitHub: [iamrudhh](https://github.com/iamrudhh))**
+Anirudh — GitHub: iamrudhh
 
----
+⚠️ Disclaimer
 
-## ⚠️ Disclaimer
-
-This tool is meant for **educational purposes** and **authorized security testing only**. Do not use it on domains you do not own or have permission to test.
-
-```
-
----
-
-If you want, I can also **make a more visual version** with **badges, emojis, and usage screenshots** to make it GitHub-ready and more attractive.  
-
-Do you want me to do that?
-```
+This tool is intended for educational purposes and authorized security testing only. Do not use it on domains you do not own or do not have explicit permission to test. The author is not responsible for misuse.
