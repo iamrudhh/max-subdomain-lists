@@ -1,51 +1,75 @@
-Max Subdomain Lists — Bash Subdomain Enumeration Tool
+# Max Subdomain Lists — `max_subdomain_lists.sh`
 
-Max Subdomain Lists is a lightweight Bash-based subdomain enumeration script that generates common subdomains for a given domain, builds corresponding URLs with both HTTP and HTTPS schemes, and optionally probes them using curl to check if they are live.
+**Bash subdomain wordlist generator + optional URL prober**
+Lightweight, portable Bash tool to build common subdomain hostnames and `http(s)` URLs for a target domain. Optionally probes those URLs with `curl` to check which are live.
 
-This tool is designed for bug bounty hunters, penetration testers, and cybersecurity professionals who need a simple and fast way to perform subdomain discovery and URL validation without relying on heavy external dependencies.
+> 🔒 Use only on domains you own or are authorized to test. Unauthorized scanning may be illegal.
 
-Features
+---
 
-🔹 Generate a predefined list of common subdomains for a target domain.
+## 🚀 Quick summary
 
-🔹 Build full URLs with both https:// and http://.
+`max_subdomain_lists.sh` is a tiny, dependency-light Bash script for quick subdomain enumeration and optional HTTP probing. Perfect for bug bounty recon, pentesters, and security hobbyists who want a simple starting list of candidate subdomains.
 
-🔹 Optional probing mode using curl (HEAD with fallback to GET).
+**GitHub:** `iamrudhh/max_subdomain_lists`
+**Suggested topics:** `bash`, `subdomain-enum`, `recon`, `bug-bounty`, `pentest`, `curl`
 
-🔹 Normalize user input by removing schemes and paths.
+---
 
-🔹 Save all results to subdomain_results.txt for later use.
+## 📋 Features
 
-🔹 Single file, lightweight Bash script — no Python or external tools required.
+* Pure Bash (Bash 4+) — minimal dependencies.
+* Expandable built-in subdomain wordlist (editable).
+* Generates `hostnames` and both `https://` & `http://` URLs.
+* Optional `--check` probing using `curl` (HEAD then GET fallback).
+* Outputs to `subdomain_results.txt` (human-friendly + saved log).
+* Fast, small timeout to keep scans efficient.
 
-Requirements
+---
 
-Bash 4+
+## ⚙️ Requirements
 
-curl (only required if using the probing feature --check)
+* **Bash 4+**
+* **curl** (optional — required only for `--check`)
+* Network access for probing
 
-Installation
+---
 
-Clone the repository and make the script executable:
+## 🔧 Installation
 
-git clone https://github.com/iamrudhh/max-subdomain-lists.git
-cd max-subdomain-lists
-chmod +x subdomain_url_builder.sh
+Download the script and make it executable:
 
-Usage
-Basic enumeration (generate hostnames & URLs only):
-./subdomain_url_builder.sh example.com
+```bash
+curl -LO https://raw.githubusercontent.com/iamrudhh/max_subdomain_lists/main/max_subdomain_lists.sh
+chmod +x max_subdomain_lists.sh
+```
 
-With probing (check if URLs are live):
-./subdomain_url_builder.sh example.com --check
+(Or clone the repo and use the script directly.)
 
-Arguments:
+---
 
-<domain> → The target domain (e.g., example.com or https://example.com/path).
+## 💡 Usage
 
---check → Optional flag that probes each generated URL using curl.
+```bash
+# Generate hostnames and URLs (no probing)
+./max_subdomain_lists.sh example.com
 
-Example Output
+# Generate hostnames/URLs and probe them (requires curl)
+./max_subdomain_lists.sh example.com --check
+
+# Script prints usage when no args supplied
+./max_subdomain_lists.sh
+```
+
+Output is printed to the terminal and saved to `subdomain_results.txt` in the script directory.
+
+---
+
+## 🔎 Example output (truncated)
+
+```
+Normalized domain: example.com
+
 Target domain: example.com
 
 Hostnames:
@@ -57,44 +81,61 @@ Hostnames:
 URLs (https first):
   https://www.example.com
   http://www.example.com
+  https://mail.example.com
+  http://mail.example.com
   ...
 
 Probing Results:
-https://www.example.com           -> UP   : HTTP 200
-http://www.example.com            -> UP   : HTTP 200
+https://www.example.com                    -> UP   : HTTP 200
+http://www.example.com                     -> UP   : HTTP 301
+https://mail.example.com                   -> DOWN : failed
 
+[+] Results saved to subdomain_results.txt
+```
 
-All results are saved automatically to subdomain_results.txt.
+---
 
-How It Works
+## 🧠 How it works (brief)
 
-Domain Normalization → Removes schemes (http://, https://) and paths from the input.
+1. **normalize\_domain()** — cleans input (removes `http(s)://`, paths, trailing colon) and lowercases it.
+2. **build\_hostnames()** — iterates `SUBDOMAIN_RAW` and prepends tokens to the domain.
+3. **build\_urls()** — emits `https://` then `http://` for each hostname.
+4. **probe\_url()** — uses `curl -I` (HEAD) with short timeout; falls back to GET when needed.
+5. **main** — orchestrates and writes output to `subdomain_results.txt`.
 
-Subdomain Generation → Combines the domain with a built-in wordlist of common subdomains.
+---
 
-URL Construction → Creates full URLs for each subdomain with https:// and http://.
+## ✍️ Customization
 
-Optional Probing → Uses curl to send a HEAD request (fallback to GET if necessary).
+* Add/remove words in the `SUBDOMAIN_RAW` heredoc to tune the list.
+* Change `OUT_FILE` to a different filename.
+* Adjust `-m 4` (curl timeout) to increase/decrease probe timeout.
+* Add parallel probing (`xargs -P` or background workers) for speed—be careful to avoid creating too much traffic.
 
-Result Saving → Displays results in the console and writes them to subdomain_results.txt.
+---
 
-Performance
+## 🔗 Integration ideas
 
-Optimized for fast subdomain discovery with a small to medium wordlist.
+* Pipe hostnames into DNS tools like `massdns`, `amass`, or `assetfinder`.
+* Send live hosts to `httprobe`, `gau`, or `waybackurls` for further reconnaissance.
+* Add to recon-playbook or CI to auto-generate lists for testing.
 
-Probing mode uses a 4-second timeout for quick availability checks.
+---
 
-Easily extendable: add more entries to the SUBDOMAIN_RAW list inside the script.
+## ⚖️ Legal & responsible use
 
-For faster large-scale probing, combine the tool with xargs -P or GNU parallel.
+Only run this tool against domains you own or have explicit written permission to test. Scanning domains without permission may be illegal and could get you blocked or reported.
 
-Author
+---
 
-Anirudh
-GitHub: iamrudhh
+## 🤝 Contributing
 
-Disclaimer
+Contributions welcome — fork the repo, edit the `SUBDOMAIN_RAW`, improve probing, add docs or tests, then open a PR. Keep changes small and documented.
 
-This script is intended for educational use and authorized security testing only.
-Do not use it on domains you do not own or lack explicit permission to test.
-The author assumes no responsibility for misuse.
+---
+
+## 📝 License
+
+Suggested: **MIT License** (or pick whichever you prefer). Add a `LICENSE` file.
+
+---
